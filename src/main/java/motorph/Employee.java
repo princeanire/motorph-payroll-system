@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class Employee {
-    public int employeeNumber;
+    public int employeeId;
     public String lastName;
     public String firstName;
     public LocalDate birthday;
@@ -15,7 +15,7 @@ public class Employee {
             String pagibigNumber, EmploymentStatus status, String position, String immediateSupervisor,
             BigDecimal basicSalary, BigDecimal riceSubsidy, BigDecimal phoneAllowance, BigDecimal clothingAllowance,
             BigDecimal grossSemimonthlyRate, BigDecimal hourlyRate) {
-        this.employeeNumber = employeeNumber;
+        this.employeeId = employeeNumber;
         this.lastName = lastName;
         this.firstName = firstName;
         this.birthday = birthday;
@@ -24,6 +24,6 @@ public class Employee {
 
     @Override
     public String toString() {
-        return String.format("%d, %s %s, %s", employeeNumber, firstName, lastName, birthday.format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
+        return String.format("%d, %s %s, %s", employeeId, firstName, lastName, birthday.format(DateTimeFormatter.ofPattern("MM/dd/yyyy")));
     }
 }
