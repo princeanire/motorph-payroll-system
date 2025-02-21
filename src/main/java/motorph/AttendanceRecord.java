@@ -16,12 +16,12 @@ public class AttendanceRecord {
     @CsvBindByName(column = "Last Name", required = true)
     public String lastName;
 
-    @CsvCustomBindByName(column = "Date", required = true, converter = DateTimeConverter.DateConverter.class)
+    @CsvCustomBindByName(column = "Date", required = true, converter = Converter.DateConverter.class)
     public LocalDate date;
 
-    @CsvCustomBindByName(column = "Log In", required = true, converter = DateTimeConverter.DateConverter.TimeConverter.class)
+    @CsvCustomBindByName(column = "Log In", required = true, converter = Converter.TimeConverter.class)
     public LocalTime logIn;
 
-    @CsvCustomBindByName(column = "Log Out", required = true, converter = DateTimeConverter.DateConverter.TimeConverter.class)
+    @CsvCustomBindByName(column = "Log Out", required = true, converter = Converter.TimeConverter.class)
     public LocalTime logOut;
 }
