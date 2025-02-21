@@ -10,5 +10,9 @@ public class App {
         for (AttendanceRecord attendanceRecord : antonioLimAttendanceRecords) {
             System.out.println(attendanceRecord.employeeId);
         }
+
+        EmployeeDatabaseService.getEmployeeDetails();
+        Employee antonioLim = EmployeeDatabaseService.getEmployeeDetailsByEmployeeId(10002).get();
+        System.out.println("Antonio Lim's hourly rate is " + antonioLim.hourlyRate.toString());
     }
 }
