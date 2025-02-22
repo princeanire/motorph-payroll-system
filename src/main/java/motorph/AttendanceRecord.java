@@ -24,4 +24,22 @@ public class AttendanceRecord {
 
     @CsvCustomBindByName(column = "Log Out", required = true, converter = Converter.TimeConverter.class)
     public LocalTime logOut;
+
+    public boolean hasOvertimeHours() {
+        return EmployeeDatabaseService.calculateEmployeeWorkingHours(this.logIn, this.logOut) > 8;
+    }
+
+    public AttendanceRecord() {
+
+    }
+
+    public AttendanceRecord(int employeeId, String firstName, String lastName, LocalDate date, LocalTime logIn,
+            LocalTime logOut) {
+        this.employeeId = employeeId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.date = date;
+        this.logIn = logIn;
+        this.logOut = logOut;
+    }
 }
