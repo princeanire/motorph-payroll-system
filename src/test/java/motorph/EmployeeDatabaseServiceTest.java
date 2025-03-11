@@ -60,7 +60,7 @@ public class EmployeeDatabaseServiceTest {
 
     @Test
     public void calculateEmployeeDeMinimisBenefits() {
-        BigDecimal lizethVillegasDeMinimisBenefit = new BigDecimal(2500).setScale(2, RoundingMode.UNNECESSARY);
+        BigDecimal lizethVillegasDeMinimisBenefit = new BigDecimal(2500);
 
         BigDecimal lizethVillegasCalculatedDeMinimisBenefit = EmployeeDatabaseService
                 .calculateEmployeeDeminimisBenefits(lizethVillegas.employeeId);
@@ -73,16 +73,14 @@ public class EmployeeDatabaseServiceTest {
         // Arrange
         LocalTime logIn = LocalTime.of(8, 29, 0);
         LocalTime logOut = LocalTime.of(19, 24, 0);
-        BigDecimal overtimePay = new BigDecimal(178.575).setScale(2, RoundingMode.UP);
+        BigDecimal overtimePay = new BigDecimal(178.575).setScale(3, RoundingMode.UP);
         LocalDate attendanceRecordDate = LocalDate.of(2024, 6, 7);
         AttendanceRecord attendanceRecordWithOvertimeHours = new AttendanceRecord(lizethVillegas.employeeId,
                 lizethVillegas.firstName, lizethVillegas.lastName,
                 attendanceRecordDate, logIn, logOut);
 
-        // Act
         BigDecimal result = EmployeeDatabaseService.calculateEmployeeOvertimePay(attendanceRecordWithOvertimeHours);
 
-        // Assert
         assertEquals(overtimePay, result);
     }
 }
