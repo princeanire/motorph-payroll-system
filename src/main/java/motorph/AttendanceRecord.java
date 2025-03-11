@@ -27,7 +27,7 @@ public class AttendanceRecord {
     public LocalTime logOut;
 
     public boolean hasOvertimeHours() {
-        if (logIn.isAfter(LocalTime.of(8,11))) {
+        if (logIn.isAfter(LocalTime.of(8,10))) {
             return false;
         }
         return EmployeeDatabaseService.calculateEmployeeWorkingHours(this.logIn, this.logOut) > 8;
