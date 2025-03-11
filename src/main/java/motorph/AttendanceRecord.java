@@ -2,6 +2,7 @@ package motorph;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.Month;
 
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvCustomBindByName;
@@ -26,7 +27,14 @@ public class AttendanceRecord {
     public LocalTime logOut;
 
     public boolean hasOvertimeHours() {
+        if (logIn.isAfter(LocalTime.of(8,11))) {
+            return false;
+        }
         return EmployeeDatabaseService.calculateEmployeeWorkingHours(this.logIn, this.logOut) > 8;
+    }
+
+    public Month getMonth() {
+        return this.date.getMonth();
     }
 
     public AttendanceRecord() {
