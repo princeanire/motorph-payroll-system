@@ -115,4 +115,28 @@ public class SalaryDeductionService {
         BigDecimal employeeShare = BigDecimal.valueOf(2);
         return monthlyBasicSalary.multiply(philhealthPremiumRate).divide(employeeShare);
     }
+
+    public static BigDecimal calculateWithholdingTax(BigDecimal monthlySalary) {
+        BigDecimal withholdingTax = BigDecimal.valueOf(0);
+        if (monthlySalary.compareTo(BigDecimal.valueOf(0)) > 0 && monthlySalary.compareTo(BigDecimal.valueOf(20832)) <= 0) {
+            withholdingTax = BigDecimal.valueOf(0);
+        } else if (monthlySalary.compareTo(BigDecimal.valueOf(20833)) >= 0 && monthlySalary.compareTo(BigDecimal.valueOf(33333)) < 0) {
+            withholdingTax = monthlySalary.subtract(BigDecimal.valueOf(20833)).multiply(BigDecimal.valueOf(0.20));
+        } else if (monthlySalary.compareTo(BigDecimal.valueOf(33333)) >= 0 && monthlySalary.compareTo(BigDecimal.valueOf(66667)) < 0) {
+            withholdingTax = monthlySalary.subtract(BigDecimal.valueOf(33333)).multiply(BigDecimal.valueOf(0.25));
+            withholdingTax = withholdingTax.add(BigDecimal.valueOf(2500));
+        } else if (monthlySalary.compareTo(BigDecimal.valueOf(66667)) >= 0 && monthlySalary.compareTo(BigDecimal.valueOf(166667)) < 0) {
+            withholdingTax = monthlySalary.subtract(BigDecimal.valueOf(66667)).multiply(BigDecimal.valueOf(0.30));
+            withholdingTax = withholdingTax.add(BigDecimal.valueOf(10833));
+
+        } else if (monthlySalary.compareTo(BigDecimal.valueOf(166667)) >= 0 && monthlySalary.compareTo(BigDecimal.valueOf(666667)) < 0) {
+            withholdingTax = monthlySalary.subtract(BigDecimal.valueOf(166667)).multiply(BigDecimal.valueOf(0.32));
+            withholdingTax = withholdingTax.add(BigDecimal.valueOf(40833.33));
+
+        } else if (monthlySalary.compareTo(BigDecimal.valueOf(666667)) >= 0) {
+            withholdingTax = monthlySalary.subtract(BigDecimal.valueOf(666667)).multiply(BigDecimal.valueOf(0.35));
+            withholdingTax = withholdingTax.add(BigDecimal.valueOf(200833.33));
+        }
+        return withholdingTax;
+    }
 }
