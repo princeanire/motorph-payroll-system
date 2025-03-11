@@ -1,6 +1,5 @@
 package motorph;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 
@@ -35,11 +34,21 @@ class SalaryDeductionServiceTest {
 
     @ParameterizedTest
     @CsvFileSource(files = "src/main/resources/employee-philhealth-contributions.csv", numLinesToSkip = 1)
-    public void calculatePhilhealthContribution(String employeeMonthlyBasicSalary, double philhealthContribution) {
+    public void calculatePhilhealthContributionTest(String employeeMonthlyBasicSalary, double philhealthContribution) {
         double parsedMonthlyBasicSalary = Double.parseDouble(employeeMonthlyBasicSalary.replace(",", ""));
         BigDecimal expectedPhilhealthContribution = BigDecimal.valueOf(philhealthContribution).stripTrailingZeros();
 
         assertEquals(expectedPhilhealthContribution, SalaryDeductionService.calculatePhilhealthContribution(BigDecimal.valueOf(parsedMonthlyBasicSalary)).stripTrailingZeros());
+    }
+
+    @ParameterizedTest
+    @CsvFileSource(files = "src/main/resources/employee-withholding-tax.csv", numLinesToSkip = 1)
+    public void calculateWithholdingTaxTest(String employeeMonthlyBasicSalary, double withholdingTax) {
+        double parsedMonthlyBasicSalary = Double.parseDouble(employeeMonthlyBasicSalary.replace(",", ""));
+        BigDecimal expectedWithholdingTax = BigDecimal.valueOf(withholdingTax);
+
+        assertEquals(expectedWithholdingTax.stripTrailingZeros(), SalaryDeductionService.calculateWithholdingTax(BigDecimal.valueOf(parsedMonthlyBasicSalary)).stripTrailingZeros());
+
 
     }
 
