@@ -8,6 +8,7 @@ import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvCustomBindByName;
 
 public class AttendanceRecord {
+    
     @CsvBindByName(column = "Employee #", required = true)
     public int employeeId;
 
@@ -26,28 +27,26 @@ public class AttendanceRecord {
     @CsvCustomBindByName(column = "Log Out", required = true, converter = Converter.TimeConverter.class)
     public LocalTime logOut;
 
-    public boolean hasOvertimeHours() {
-        if (logIn.isAfter(LocalTime.of(8,11))) {
-            return false;
-        }
-        return EmployeeDatabaseService.calculateEmployeeWorkingHours(this.logIn, this.logOut) > 8;
-    }
+    // Constructors
+    public AttendanceRecord() {}
 
-    public Month getMonth() {
-        return this.date.getMonth();
-    }
-
-    public AttendanceRecord() {
-
-    }
-
-    public AttendanceRecord(int employeeId, String firstName, String lastName, LocalDate date, LocalTime logIn, LocalTime logOut)
-    {
+    public AttendanceRecord(int employeeId, String firstName, String lastName, 
+                            LocalDate date, LocalTime logIn, LocalTime logOut) {
         this.employeeId = employeeId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.date = date;
         this.logIn = logIn;
         this.logOut = logOut;
+    }
+
+    // Methods
+    public boolean hasOvertimeHours() {
+        return !(logIn.isAfter(LocalTime.of(8, 11))) 
+                && EmployeeDatabaseService.calculateEmployeeWorkingHours(this.logIn, this.logOut) > 8;
+    }
+
+    public Month getMonth() {
+        return this.date.getMonth();
     }
 }
