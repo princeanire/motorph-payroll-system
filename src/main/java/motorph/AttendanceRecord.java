@@ -8,6 +8,10 @@ import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvCustomBindByName;
 
 public class AttendanceRecord {
+
+    // Define constants for performance optimization
+    private static final LocalTime OVERTIME_CUTOFF = LocalTime.of(8, 11);
+    
     @CsvBindByName(column = "Employee #", required = true)
     public int employeeId;
 
@@ -27,10 +31,8 @@ public class AttendanceRecord {
     public LocalTime logOut;
 
     public boolean hasOvertimeHours() {
-        if (logIn.isAfter(LocalTime.of(8,11))) {
-            return false;
-        }
-        return EmployeeDatabaseService.calculateEmployeeWorkingHours(this.logIn, this.logOut) > 8;
+        return !logIn.isAfter(OVERTIME_CUTOFF) && 
+               EmployeeDatabaseService.calculateEmployeeWorkingHours(logIn, logOut) > 8
     }
 
     public Month getMonth() {
