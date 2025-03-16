@@ -41,8 +41,8 @@ public class AttendanceRecord {
 
     }
 
-    public AttendanceRecord(int employeeId, String firstName, String lastName, LocalDate date, LocalTime logIn,
-            LocalTime logOut) {
+    public AttendanceRecord(int employeeId, String firstName, String lastName, LocalDate date, LocalTime logIn, LocalTime logOut)
+    {
         this.employeeId = employeeId;
         this.firstName = firstName;
         this.lastName = lastName;
