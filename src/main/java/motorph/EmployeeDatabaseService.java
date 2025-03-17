@@ -1,5 +1,6 @@
 package motorph;
 
+import com.opencsv.bean.CsvToBeanBuilder;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.math.BigDecimal;
@@ -10,11 +11,9 @@ import java.time.temporal.WeekFields;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.opencsv.bean.CsvToBeanBuilder;
-
 public class EmployeeDatabaseService {
-    public static List<AttendanceRecord> attendanceRecords;
-    public static List<Employee> employees;
+    private static List<AttendanceRecord> attendanceRecords;
+    private static List<Employee> employees;
 
     public static List<AttendanceRecord> getAllAttendanceRecords() {
         if (attendanceRecords == null) {
@@ -30,8 +29,8 @@ public class EmployeeDatabaseService {
                     .withType(AttendanceRecord.class)
                     .build()
                     .parse();
-        } catch (FileNotFoundException fileNotFoundException) {
-            System.out.println("Attendance Records Database CSV file not found: " + fileNotFoundException);
+        } catch (FileNotFoundException e) {
+            System.out.println("Attendance Records Database CSV file not found: " + e.getMessage());
         }
     }
 
@@ -42,22 +41,16 @@ public class EmployeeDatabaseService {
     }
 
     public static Map<Month, List<AttendanceRecord>> getAttendanceRecordsByMonth(int employeeId) {
-        Map<Month, List<AttendanceRecord>> map = new HashMap<>();
-        for (AttendanceRecord record : getAttendanceRecordsByEmployeeId(employeeId)) {
-            map.computeIfAbsent(record.date.getMonth(), k -> new ArrayList<>()).add(record);
-        }
-        return map;
+        return getAttendanceRecordsByEmployeeId(employeeId).stream()
+                .collect(Collectors.groupingBy(record -> record.date.getMonth()));
     }
 
     public static Map<Integer, List<AttendanceRecord>> getAttendanceRecordsByWeek(int employeeId, Month month) {
-        // Get the attendance records for the specified month
         List<AttendanceRecord> monthRecords = getAttendanceRecordsByMonth(employeeId).get(month);
-
         if (monthRecords == null) {
-            return new HashMap<>(); // Return empty map if no records for this month
+            return new HashMap<>();
         }
 
-        // Group records by week of month
         WeekFields weekFields = WeekFields.of(Locale.US);
         return monthRecords.stream()
                 .collect(Collectors.groupingBy(record -> record.date.get(weekFields.weekOfMonth())));
@@ -70,8 +63,8 @@ public class EmployeeDatabaseService {
                     .withType(Employee.class)
                     .build()
                     .parse();
-        } catch (FileNotFoundException fileNotFoundException) {
-            System.out.println("Employee Details Database CSV file not found: " + fileNotFoundException);
+        } catch (FileNotFoundException e) {
+            System.out.println("Employee Details Database CSV file not found: " + e.getMessage());
         }
     }
 
@@ -84,117 +77,83 @@ public class EmployeeDatabaseService {
 
     public static Optional<Employee> getEmployeeDetailsByEmployeeId(int employeeId) {
         return getAllEmployeeDetails().stream()
-                .filter(employeeDetails -> employeeDetails.employeeId == employeeId).findFirst();
+                .filter(employee -> employee.employeeId == employeeId)
+                .findFirst();
     }
 
     public static int calculateEmployeeWorkingHours(LocalTime logInTime, LocalTime logOutTime) {
-        Duration shiftSchedule = Duration.between(logInTime, logOutTime);
-        Duration lunchBreak = Duration.ofHours(1);
-        return shiftSchedule.toHoursPart() - lunchBreak.toHoursPart();
+        return (int) Duration.between(logInTime, logOutTime).minusHours(1).toHours();
     }
 
-    public static int calculateEmployeeWorkingHours(AttendanceRecord attendanceRecord) {
-        Duration shiftSchedule = Duration.between(attendanceRecord.logIn, attendanceRecord.logOut);
-        Duration lunchBreak = Duration.ofHours(1);
-        return shiftSchedule.toHoursPart() - lunchBreak.toHoursPart();
+    public static int calculateEmployeeWorkingHours(AttendanceRecord record) {
+        return calculateEmployeeWorkingHours(record.logIn, record.logOut);
     }
 
     public static double calculateEmployeeWorkingDuration(LocalTime logInTime, LocalTime logOutTime) {
-        Duration shiftSchedule = Duration.between(logInTime, logOutTime);
-        Duration lunchBreak = Duration.ofHours(1);
-        long totalMinutes = shiftSchedule.toMinutes() - lunchBreak.toMinutes();
-        return totalMinutes / 60.0;
+        return Duration.between(logInTime, logOutTime).minusHours(1).toMinutes() / 60.0;
     }
 
-    public static BigDecimal calculateEmployeeDailyBasicPay(int employeeId, double employeeWorkingDuration) {
-        BigDecimal hourlyRate = getEmployeeDetailsByEmployeeId(employeeId).get().hourlyRate;
-        return hourlyRate.multiply(BigDecimal.valueOf(employeeWorkingDuration));
-    }
-
-    public static BigDecimal calculateEmployeeDailyBasicPay(int employeeId, int employeeWorkingHours) {
-        BigDecimal hourlyRate = EmployeeDatabaseService.getEmployeeDetailsByEmployeeId(employeeId).get().hourlyRate;
-        return hourlyRate.multiply(BigDecimal.valueOf(employeeWorkingHours));
+    public static BigDecimal calculateEmployeeDailyBasicPay(int employeeId, double workingDuration) {
+        return getEmployeeDetailsByEmployeeId(employeeId)
+                .map(employee -> employee.hourlyRate.multiply(BigDecimal.valueOf(workingDuration)))
+                .orElse(BigDecimal.ZERO);
     }
 
     public static BigDecimal calculateEmployeeDeminimisBenefits(int employeeId) {
-        System.out.println("Clothing Allowance  is " + EmployeeDatabaseService.getEmployeeDetailsByEmployeeId(employeeId).get().clothingAllowance);
-        System.out.println("Rice Subsidy is " + EmployeeDatabaseService.getEmployeeDetailsByEmployeeId(employeeId).get().riceSubsidy);
-        BigDecimal clothingAllowance = EmployeeDatabaseService.getEmployeeDetailsByEmployeeId(employeeId)
-                .get().clothingAllowance;
-        BigDecimal riceSubsidy = EmployeeDatabaseService.getEmployeeDetailsByEmployeeId(employeeId)
-                .get().riceSubsidy;
-        System.out.println("Phone Allowance is " + EmployeeDatabaseService.getEmployeeDetailsByEmployeeId(employeeId).get().phoneAllowance);
-        BigDecimal phoneAllowance = EmployeeDatabaseService.getEmployeeDetailsByEmployeeId(employeeId)
-                .get().phoneAllowance;
-
-        return clothingAllowance.add(riceSubsidy).add(phoneAllowance);
+        return getEmployeeDetailsByEmployeeId(employeeId)
+                .map(employee -> employee.clothingAllowance
+                        .add(employee.riceSubsidy)
+                        .add(employee.phoneAllowance))
+                .orElse(BigDecimal.ZERO);
     }
 
-    public static BigDecimal calculateEmployeeOvertimePay(AttendanceRecord attendanceRecord) {
-        BigDecimal hourlyRate = EmployeeDatabaseService.getEmployeeDetailsByEmployeeId(attendanceRecord.employeeId)
-                .get().hourlyRate;
-
-        if (attendanceRecord.hasOvertimeHours()) {
-            int workingHours = EmployeeDatabaseService.calculateEmployeeWorkingHours(attendanceRecord.logIn,
-                    attendanceRecord.logOut);
-            int overtimeHours = workingHours - 8;
-            BigDecimal overtimeRate = BigDecimal.valueOf(1.25);
-            return hourlyRate.multiply(BigDecimal.valueOf(overtimeHours).multiply(overtimeRate)).stripTrailingZeros();
-
-        } else {
-            return BigDecimal.valueOf(0.0);
-        }
+    public static BigDecimal calculateEmployeeOvertimePay(AttendanceRecord record) {
+        return getEmployeeDetailsByEmployeeId(record.employeeId)
+                .filter(employee -> record.hasOvertimeHours())
+                .map(employee -> {
+                    int overtimeHours = calculateEmployeeWorkingHours(record) - 8;
+                    return employee.hourlyRate.multiply(BigDecimal.valueOf(overtimeHours).multiply(BigDecimal.valueOf(1.25)));
+                })
+                .orElse(BigDecimal.ZERO);
     }
 
     public static void calculateEmployeeWeeklySalary(int employeeId) {
-
-        Employee employee = getEmployeeDetailsByEmployeeId(employeeId).get();
-        Map<Integer, List<AttendanceRecord>> juneWeeklyAttendanceRecords = getAttendanceRecordsByWeek(employeeId, Month.JUNE);
-        Map<Integer, List<AttendanceRecord>> julyWeeklyAttendanceRecords = getAttendanceRecordsByWeek(employeeId, Month.JULY);
-        Map<Integer, List<AttendanceRecord>> augustWeeklyAttendanceRecords = getAttendanceRecordsByWeek(employeeId, Month.AUGUST);
-        Map<Integer, List<AttendanceRecord>> septemberWeeklyAttendanceRecords = getAttendanceRecordsByWeek(employeeId, Month.SEPTEMBER);
-        Map<Integer, List<AttendanceRecord>> octoberWeeklyAttendanceRecords = getAttendanceRecordsByWeek(employeeId, Month.OCTOBER);
-        Map<Integer, List<AttendanceRecord>> novemberWeeklyAttendanceRecords = getAttendanceRecordsByWeek(employeeId, Month.NOVEMBER);
-        Map<Integer, List<AttendanceRecord>> decemberWeeklyAttendanceRecords = getAttendanceRecordsByWeek(employeeId, Month.DECEMBER);
-
-        calculateEmployeeWeeklySalary(employee, juneWeeklyAttendanceRecords);
-        calculateEmployeeWeeklySalary(employee, julyWeeklyAttendanceRecords);
-        calculateEmployeeWeeklySalary(employee, augustWeeklyAttendanceRecords);
-        calculateEmployeeWeeklySalary(employee, septemberWeeklyAttendanceRecords);
-        calculateEmployeeWeeklySalary(employee, octoberWeeklyAttendanceRecords);
-        calculateEmployeeWeeklySalary(employee, novemberWeeklyAttendanceRecords);
-        calculateEmployeeWeeklySalary(employee, decemberWeeklyAttendanceRecords);
+        getEmployeeDetailsByEmployeeId(employeeId).ifPresent(employee -> {
+            for (Month month : Month.values()) {
+                calculateEmployeeWeeklySalary(employee, getAttendanceRecordsByWeek(employeeId, month));
+            }
+        });
         System.out.println("--------------------------------------------------------------------------------------------------");
     }
 
-    public static void calculateEmployeeWeeklySalary(Employee employee, Map<Integer, List<AttendanceRecord>> weeklyAttendanceRecords) {
+    public static void calculateEmployeeWeeklySalary(Employee employee, Map<Integer, List<AttendanceRecord>> weeklyRecords) {
         System.out.println(employee.employeeId + ", " + employee.firstName + " " + employee.lastName + ", " + employee.birthday);
-        Integer lastWeekNumber = Collections.max(weeklyAttendanceRecords.keySet()) - 1;
 
-        for (Integer weekNumber : weeklyAttendanceRecords.keySet()) {
-            BigDecimal employeeGrossWeeklySalary = BigDecimal.ZERO;
-            double employeeWorkingDuration = 0.0;
-            List<AttendanceRecord> weekRecords = weeklyAttendanceRecords.get(weekNumber);
-            for (AttendanceRecord record : weekRecords) {
-                employeeWorkingDuration += calculateEmployeeWorkingDuration(record.logIn, record.logOut);
-                employeeGrossWeeklySalary = employeeGrossWeeklySalary.add(calculateEmployeeOvertimePay(record));
-            }
-            employeeGrossWeeklySalary = employeeGrossWeeklySalary.add(calculateEmployeeDailyBasicPay(employee.employeeId, employeeWorkingDuration));
-            System.out.println("Number of hours for Week " + weekNumber + " of " + weeklyAttendanceRecords.get(2).getFirst().getMonth() + " 2024 " + ": " + employeeWorkingDuration);
-            System.out.println("Gross Weekly Salary " + "for Week " + weekNumber + " of " + weeklyAttendanceRecords.get(2).getFirst().getMonth() + " 2024 " + ": " + employeeGrossWeeklySalary);
-            if (weekNumber.equals(lastWeekNumber)) {
-                System.out.println("Social Security Contribution deduction is: " + SalaryDeductionService.calculateSocialSecuritySystemContribution(employee.basicSalary));
-                employeeGrossWeeklySalary = employeeGrossWeeklySalary.subtract(SalaryDeductionService.calculateSocialSecuritySystemContribution(employee.basicSalary));
-                System.out.println("Withholding Tax deduction is: " + SalaryDeductionService.calculateWithholdingTax(employee.basicSalary));
-                employeeGrossWeeklySalary = employeeGrossWeeklySalary.subtract(SalaryDeductionService.calculateWithholdingTax(employee.basicSalary));
-                System.out.println("Philhealth Contribution deduction is: " + SalaryDeductionService.calculatePhilhealthContribution(employee.basicSalary));
-                employeeGrossWeeklySalary = employeeGrossWeeklySalary.subtract(SalaryDeductionService.calculatePhilhealthContribution(employee.basicSalary));
-                System.out.println("Pag-Ibig Contribution deduction is: " + SalaryDeductionService.calculatePagIbigContribution(employee.basicSalary));
-                BigDecimal employeeNetWeeklySalary = employeeGrossWeeklySalary.subtract(SalaryDeductionService.calculatePagIbigContribution(employee.basicSalary));
-                employeeNetWeeklySalary = employeeNetWeeklySalary.add(calculateEmployeeDeminimisBenefits(employee.employeeId));
-                System.out.println("Net Weekly Salary " + "in Week " + weekNumber + " of " + weeklyAttendanceRecords.get(2).getFirst().getMonth() + " 2024 " + ": " + employeeNetWeeklySalary);
+        for (var entry : weeklyRecords.entrySet()) {
+            int weekNumber = entry.getKey();
+            List<AttendanceRecord> weekAttendance = entry.getValue();
+
+            double totalWorkingDuration = weekAttendance.stream()
+                    .mapToDouble(record -> calculateEmployeeWorkingDuration(record.logIn, record.logOut))
+                    .sum();
+            BigDecimal totalOvertimePay = weekAttendance.stream()
+                    .map(EmployeeDatabaseService::calculateEmployeeOvertimePay)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal grossSalary = calculateEmployeeDailyBasicPay(employee.employeeId, totalWorkingDuration)
+                    .add(totalOvertimePay);
+
+            System.out.println("Week " + weekNumber + " Hours: " + totalWorkingDuration);
+            System.out.println("Gross Salary for Week " + weekNumber + ": " + grossSalary);
+
+            if (weekNumber == Collections.max(weeklyRecords.keySet()) - 1) {
+                BigDecimal deductions = SalaryDeductionService.calculateSocialSecuritySystemContribution(employee.basicSalary)
+                        .add(SalaryDeductionService.calculateWithholdingTax(employee.basicSalary))
+                        .add(SalaryDeductionService.calculatePhilhealthContribution(employee.basicSalary))
+                        .add(SalaryDeductionService.calculatePagIbigContribution(employee.basicSalary));
+                BigDecimal netSalary = grossSalary.subtract(deductions).add(calculateEmployeeDeminimisBenefits(employee.employeeId));
+
+                System.out.println("Net Weekly Salary for Week " + weekNumber + ": " + netSalary);
             }
         }
-
     }
 }
