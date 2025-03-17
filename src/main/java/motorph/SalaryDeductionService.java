@@ -59,7 +59,7 @@ public class SalaryDeductionService {
         }
         return BigDecimal.valueOf(135.00);
     }
-}
+
 
     public static BigDecimal calculatePagIbigContribution(BigDecimal monthlyBasicSalary) {
         BigDecimal contributionRate = (monthlyBasicSalary.compareTo(BigDecimal.valueOf(1500)) > 0)
@@ -95,3 +95,4 @@ public class SalaryDeductionService {
         return withholdingTax;
     }
 }
+
