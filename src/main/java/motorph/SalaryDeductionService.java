@@ -59,26 +59,17 @@ public class SalaryDeductionService {
         }
         return BigDecimal.valueOf(135.00);
     }
-    public static BigDecimal calculatePagIbigContribution(BigDecimal monthlyBasicSalary) {
-        BigDecimal employeeContributionRate;
-        BigDecimal employeePagIbigContribution = BigDecimal.valueOf(0);
-        BigDecimal pagIbigMaximumContributionAmount = BigDecimal.valueOf(100.00);
-        if (monthlyBasicSalary.compareTo(BigDecimal.valueOf(1500)) > 0) {
-            employeeContributionRate = BigDecimal.valueOf(0.02);
-            employeePagIbigContribution = monthlyBasicSalary.multiply(employeeContributionRate);
 
-        } else if (monthlyBasicSalary.compareTo(BigDecimal.valueOf(1000)) >= 0 && monthlyBasicSalary.compareTo(BigDecimal.valueOf(1500)) <= 0) {
-            employeeContributionRate = BigDecimal.valueOf(0.01);
-            employeePagIbigContribution = monthlyBasicSalary.multiply(employeeContributionRate);
-        }
-        return BigDecimal.valueOf(Math.min(employeePagIbigContribution.doubleValue(), pagIbigMaximumContributionAmount.doubleValue()));
-    }
+
+    public static BigDecimal calculatePagIbigContribution(BigDecimal monthlyBasicSalary) {
+        BigDecimal contributionRate = (monthlyBasicSalary.compareTo(BigDecimal.valueOf(1500)) > 0)
+            ? BigDecimal.valueOf(0.02) : BigDecimal.valueOf(0.01);
+        return monthlyBasicSalary.multiply(contributionRate).min(BigDecimal.valueOf(100.00));
+    } //simplified the logic for getting contributions
 
     public static BigDecimal calculatePhilhealthContribution(BigDecimal monthlyBasicSalary) {
-        BigDecimal philhealthPremiumRate = BigDecimal.valueOf(0.03);
-        BigDecimal employeeShare = BigDecimal.valueOf(2);
-        return monthlyBasicSalary.multiply(philhealthPremiumRate).divide(employeeShare);
-    }
+        return monthlyBasicSalary.multiply(BigDecimal.valueOf(0.03)).divide(BigDecimal.valueOf(2));
+    } //made the division step explicit
 
     public static BigDecimal calculateWithholdingTax(BigDecimal monthlySalary) {
         BigDecimal withholdingTax = BigDecimal.valueOf(0);
