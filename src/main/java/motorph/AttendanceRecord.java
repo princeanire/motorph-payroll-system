@@ -31,6 +31,7 @@ public class AttendanceRecord {
     public LocalTime logOut;
 
     public boolean hasOvertimeHours() {
+      juanmigz-patch2-forAttendanceRecord
         return !logIn.isAfter(OVERTIME_CUTOFF) && 
                EmployeeDatabaseService.calculateEmployeeWorkingHours(logIn, logOut) > 8
     }
