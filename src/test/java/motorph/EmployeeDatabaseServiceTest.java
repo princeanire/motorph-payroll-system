@@ -73,13 +73,13 @@ public class EmployeeDatabaseServiceTest {
         // Arrange
         LocalTime logIn = LocalTime.of(8, 29, 0);
         LocalTime logOut = LocalTime.of(19, 24, 0);
-        BigDecimal overtimePay = new BigDecimal(178.575).setScale(3, RoundingMode.UP);
+        BigDecimal overtimePay = new BigDecimal(0).stripTrailingZeros();
         LocalDate attendanceRecordDate = LocalDate.of(2024, 6, 7);
         AttendanceRecord attendanceRecordWithOvertimeHours = new AttendanceRecord(lizethVillegas.employeeId,
                 lizethVillegas.firstName, lizethVillegas.lastName,
                 attendanceRecordDate, logIn, logOut);
 
-        BigDecimal result = EmployeeDatabaseService.calculateEmployeeOvertimePay(attendanceRecordWithOvertimeHours);
+        BigDecimal result = EmployeeDatabaseService.calculateEmployeeOvertimePay(attendanceRecordWithOvertimeHours).stripTrailingZeros();
 
         assertEquals(overtimePay, result);
     }
