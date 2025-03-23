@@ -7,19 +7,21 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
 class SalaryDeductionServiceTest {
     @ParameterizedTest
     @CsvFileSource(files = "src/main/resources/sss-contribution-schedule.csv", numLinesToSkip = 1)
-    public void calculateSocialSecuritySystemContributionTest(String minimumCompensation, String maximumCompensation, double contribution) {
+    public void calculateSocialSecuritySystemContributionTest(String minimumCompensation, String maximumCompensation,
+            double contribution) {
         double parsedMinimumCompensation = Double.parseDouble(minimumCompensation.replace(",", ""));
         double parsedMaximumCompensation = Double.parseDouble(maximumCompensation.replace(",", ""));
         BigDecimal compensationLowerBound = BigDecimal.valueOf(parsedMinimumCompensation);
         BigDecimal compensationUpperBound = BigDecimal.valueOf(parsedMaximumCompensation);
         BigDecimal expectedSocialSecuritySystemContribution = BigDecimal.valueOf(contribution);
 
-        assertEquals(expectedSocialSecuritySystemContribution, SalaryDeductionService.calculateSocialSecuritySystemContribution(compensationLowerBound));
-        assertEquals(expectedSocialSecuritySystemContribution, SalaryDeductionService.calculateSocialSecuritySystemContribution(compensationUpperBound.subtract(BigDecimal.valueOf(0.01))));
+        assertEquals(expectedSocialSecuritySystemContribution,
+                SalaryDeductionService.calculateSocialSecuritySystemContribution(compensationLowerBound));
+        assertEquals(expectedSocialSecuritySystemContribution, SalaryDeductionService
+                .calculateSocialSecuritySystemContribution(compensationUpperBound.subtract(BigDecimal.valueOf(0.01))));
     }
 
     @ParameterizedTest
@@ -38,7 +40,8 @@ class SalaryDeductionServiceTest {
         double parsedMonthlyBasicSalary = Double.parseDouble(employeeMonthlyBasicSalary.replace(",", ""));
         BigDecimal expectedPhilhealthContribution = BigDecimal.valueOf(philhealthContribution).stripTrailingZeros();
 
-        assertEquals(expectedPhilhealthContribution, SalaryDeductionService.calculatePhilhealthContribution(BigDecimal.valueOf(parsedMonthlyBasicSalary)).stripTrailingZeros());
+        assertEquals(expectedPhilhealthContribution, SalaryDeductionService
+                .calculatePhilhealthContribution(BigDecimal.valueOf(parsedMonthlyBasicSalary)).stripTrailingZeros());
     }
 
     @ParameterizedTest
@@ -47,8 +50,8 @@ class SalaryDeductionServiceTest {
         double parsedMonthlyBasicSalary = Double.parseDouble(employeeMonthlyBasicSalary.replace(",", ""));
         BigDecimal expectedWithholdingTax = BigDecimal.valueOf(withholdingTax);
 
-        assertEquals(expectedWithholdingTax.stripTrailingZeros(), SalaryDeductionService.calculateWithholdingTax(BigDecimal.valueOf(parsedMonthlyBasicSalary)).stripTrailingZeros());
-
+        assertEquals(expectedWithholdingTax.stripTrailingZeros(), SalaryDeductionService
+                .calculateWithholdingTax(BigDecimal.valueOf(parsedMonthlyBasicSalary)).stripTrailingZeros());
 
     }
 
