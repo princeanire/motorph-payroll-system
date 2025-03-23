@@ -56,7 +56,7 @@ public class AttendanceRecord {
     public boolean hasOvertimeHours() {
   // Employees who arrive late (after 8:10 AM) are not eligible for overtime
         return !logIn.isAfter(OVERTIME_CUTOFF) && 
-               EmployeeDatabaseService.calculateEmployeeWorkingHours(logIn, logOut) > 8
+               EmployeeDatabaseService.calculateEmployeeWorkingHours(logIn, logOut) > 8;
     }
 
     /**
