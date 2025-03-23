@@ -7,6 +7,18 @@ import java.time.format.DateTimeFormatter;
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvCustomBindByName;
 
+/**
+ * Represents an employee in the MotorPH Payroll System.
+ * This class contains all the personal and employment information of an employee
+ * including identification numbers, contact details, employment status, compensation,
+ * and benefits information.
+ * 
+ * The class uses OpenCSV annotations for binding CSV data to object properties,
+ * with custom converters for specific data types like dates and decimal values.
+ * 
+ * All fields are public to facilitate direct access, but care should be taken
+ * when modifying these fields directly.
+ */
 public class Employee {
     @CsvBindByName(column = "Employee #", required = true)
     public int employeeId;
@@ -47,6 +59,13 @@ public class Employee {
     @CsvCustomBindByName(column = "Hourly Rate", required = true, converter = Converter.DecimalConverter.class)
     public BigDecimal hourlyRate;
 
+    /**
+     * Returns a string representation of the employee.
+     * The format is: "employeeId, firstName lastName, MM/dd/yyyy"
+     * Where MM/dd/yyyy is the birthday formatted as month/day/year.
+     * 
+     * @return a string representation of the employee
+     */
     @Override
     public String toString() {
         return String.format("%d, %s %s, %s", employeeId, firstName, lastName,

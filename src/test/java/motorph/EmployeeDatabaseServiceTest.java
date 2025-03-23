@@ -3,7 +3,6 @@ package motorph;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -79,7 +78,8 @@ public class EmployeeDatabaseServiceTest {
                 lizethVillegas.firstName, lizethVillegas.lastName,
                 attendanceRecordDate, logIn, logOut);
 
-        BigDecimal result = EmployeeDatabaseService.calculateEmployeeOvertimePay(attendanceRecordWithOvertimeHours).stripTrailingZeros();
+        BigDecimal result = EmployeeDatabaseService.calculateEmployeeOvertimePay(attendanceRecordWithOvertimeHours)
+                .stripTrailingZeros();
 
         assertEquals(overtimePay, result);
     }
