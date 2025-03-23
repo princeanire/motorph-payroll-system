@@ -1,6 +1,20 @@
 package motorph;
 
 public class App {
+    /**
+     * The main method serves as the entry point to the application.
+     *
+     * <p>
+     * This method calculates the weekly salary for a series of employees by
+     * invoking
+     * the {@code calculateEmployeeWeeklySalary} method on the
+     * {@code EmployeeDatabaseService}
+     * class for each employee. The employee IDs range from 10001 to 10034, and each
+     * corresponding salary calculation is executed sequentially.
+     *
+     * @param args the command-line arguments, which are not used in this
+     *             application.
+     */
     public static void main(String[] args) {
         EmployeeDatabaseService.calculateEmployeeWeeklySalary(10001);
         EmployeeDatabaseService.calculateEmployeeWeeklySalary(10002);
@@ -36,5 +50,5 @@ public class App {
         EmployeeDatabaseService.calculateEmployeeWeeklySalary(10032);
         EmployeeDatabaseService.calculateEmployeeWeeklySalary(10033);
         EmployeeDatabaseService.calculateEmployeeWeeklySalary(10034);
-        }
     }
+}
