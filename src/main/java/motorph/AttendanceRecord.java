@@ -24,6 +24,10 @@ import com.opencsv.bean.CsvCustomBindByName;
  * @see motorph.EmployeeDatabaseService
  */
 public class AttendanceRecord {
+
+    // Define constants for performance optimization
+    private static final LocalTime OVERTIME_CUTOFF = LocalTime.of(8, 11);
+    
     @CsvBindByName(column = "Employee #", required = true)
     public int employeeId;
 
@@ -50,12 +54,9 @@ public class AttendanceRecord {
      * @return true if the employee has valid overtime hours, false otherwise
      */
     public boolean hasOvertimeHours() {
-        // Employees who arrive late (after 8:10 AM) are not eligible for overtime
-        if (logIn.isAfter(LocalTime.of(8, 10))) {
-            return false;
-        }
-         // Check if total working hours exceed the standard 8-hour workday
-        return EmployeeDatabaseService.calculateEmployeeWorkingHours(this.logIn, this.logOut) > 8;
+  // Employees who arrive late (after 8:10 AM) are not eligible for overtime
+        return !logIn.isAfter(OVERTIME_CUTOFF) && 
+               EmployeeDatabaseService.calculateEmployeeWorkingHours(logIn, logOut) > 8;
     }
 
     /**
